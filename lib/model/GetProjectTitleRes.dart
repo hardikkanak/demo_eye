@@ -21,12 +21,23 @@ class GetProjectTitleRes {
   String message;
   List<Datum> data;
 
-  factory GetProjectTitleRes.fromJson(Map<String, dynamic> json) =>
-      GetProjectTitleRes(
+  factory GetProjectTitleRes.fromJson(Map<String, dynamic> json) {
+
+    if (json["data"] == null || json["data"] == json || json["Status"] != 1){
+
+      return GetProjectTitleRes(
         status: json["Status"],
         message: json["Message"],
-        data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
       );
+    }
+
+    return GetProjectTitleRes(
+      status: json["Status"],
+      message: json["Message"],
+      data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    );
+  }
+
 
   Map<String, dynamic> toJson() => {
         "Status": status,

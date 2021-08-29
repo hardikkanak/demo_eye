@@ -1,13 +1,22 @@
+import 'package:demo_omex_project/model/GetLanguages.dart';
+import 'package:demo_omex_project/model/GetRequirementByTitleRes.dart';
 import 'package:flutter/material.dart';
 
 class ViewItemScreen extends StatefulWidget {
-  const ViewItemScreen({Key key}) : super(key: key);
+
+  final Datum data;
+  final List<GetLanguageList> languages;
+
+  const ViewItemScreen({Key key,@required this.languages, @required this.data}) : super(key: key);
 
   @override
   _ViewItemScreenState createState() => _ViewItemScreenState();
 }
 
 class _ViewItemScreenState extends State<ViewItemScreen> {
+
+  get data => widget.data;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,60 +24,57 @@ class _ViewItemScreenState extends State<ViewItemScreen> {
         title: const Text("Requirements Details"),
       ),
       body: SafeArea(
-        child: Container(
-          child: Card(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Main Role Only",
-                      style: TextStyle(
-                          fontSize: 20.0, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text("Categories : Lv4 -Lead characters,Lv1 - 1-2 day"),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text("Age From : 18"),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text("Age To : 30"),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text("Minimum Budget : 5000"),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text("Maximum Budget: 50000"),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text("Gender : Male"),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text("Languages : English, Hindi"),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text(
-                        "Short Description : It is a long established fact that a reader will be distracted"),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text(
-                        "Long Description : It is a long established fact that a reader will be distracted. It is a long established fact that a reader will be distracted. It is a long established fact that a reader will be distracted"),
-                  ],
-                ),
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    data.characterTitle ?? '',
+                    style: TextStyle(
+                        fontSize: 25.0, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Text(
+                    data.categories ?? '',
+                    style: TextStyle(
+                        fontSize: 15.0,color: Colors.grey),
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Text('Short Desc : ' +
+                      data.shortDescription ?? ''),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Text('Long Desc : ' + data.longDescription ?? ''),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Text("Age To : ${data.ageTo ?? 0}"),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Text("Minimum Budget : ${data.minimumBudget ?? 0}"),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Text("Maximum Budget: ${data.maximumBudget ?? 0}"),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Text("Gender : ${data.gender == Gender.MALE ? 'Male' : 'Female'}"),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Text("Languages : ${getLanguagesFrom(data.languages)}"),
+                ],
               ),
             ),
           ),
@@ -76,4 +82,24 @@ class _ViewItemScreenState extends State<ViewItemScreen> {
       ),
     );
   }
+
+  String getLanguagesFrom(String languages){
+
+    final langCode = languages.split(',').toList();
+
+    String languageComma = '';
+
+    final selectedLangs = widget.languages.where((element) {
+      return langCode.contains('${element.id}');
+    });
+
+    languageComma = selectedLangs.map((e) {
+      return e.languageName;
+    }).join(',') ;
+
+
+    return languageComma;
+
+  }
+
 }

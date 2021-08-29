@@ -1,4 +1,7 @@
+import 'package:demo_omex_project/model/GetLanguages.dart';
 import 'package:demo_omex_project/model/GetRequirementByTitleRes.dart';
+import 'package:demo_omex_project/model/NormalRes.dart';
+import 'package:demo_omex_project/pages/add_requirement_page.dart';
 import 'package:demo_omex_project/pages/view_item.dart';
 import 'package:demo_omex_project/services/userPreferencesService.dart';
 import 'package:demo_omex_project/utils/constants.dart';
@@ -7,12 +10,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import 'add_item.dart';
 
 class DashboardPage extends StatefulWidget {
   final int projectID;
 
-  const DashboardPage({Key key, this.projectID}) : super(key: key);
+  final bool isEditing;
+
+  const DashboardPage({Key key, this.projectID, this.isEditing}) : super(key: key);
   @override
   State<StatefulWidget> createState() => new DashboardPageState();
 }
@@ -20,10 +24,12 @@ class DashboardPage extends StatefulWidget {
 class DashboardPageState extends State<DashboardPage> {
   bool isLoading = false;
   List<Datum> list = [];
+  List<GetLanguageList> languages = [];
+
   final dio = new Dio();
   @override
   void initState() {
-    this._getRequirementData();
+    _getLanguages();
     super.initState();
   }
 
@@ -52,7 +58,14 @@ class DashboardPageState extends State<DashboardPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddEditItem(),
+              builder: (context) => AddRequirementPage(
+                success: (){
+                  _getRequirementData();
+                },
+                titleID: widget.projectID,
+                languages: languages,
+                isEditing: false,
+              ),
             ),
           );
         },
@@ -70,12 +83,15 @@ class DashboardPageState extends State<DashboardPage> {
         if (index == list.length) {
           return _buildProgressIndicator();
         } else {
+
+          final data = list[index];
+
           return InkWell(
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ViewItemScreen(),
+                  builder: (context) => ViewItemScreen(languages: languages,data: data,),
                 ),
               );
             },
@@ -87,45 +103,110 @@ class DashboardPageState extends State<DashboardPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Container(
+                        alignment: Alignment.topRight,
+                        child: PopupMenuButton<String>(
+                          onSelected: (String result) {
+                            if (result == "Delete") {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text("Delete"),
+                                      content: Text("Are you sure you want to delete?"),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text("No")),
+                                        TextButton(
+                                            onPressed: () {
+                                              _deleteRequirement(data.id ?? 0);
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text("Yes")),
+                                      ],
+                                    );
+                                  });
+                            } else if (result == "Edit") {
+                              print("Edit");
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddRequirementPage(
+                                    success: (){
+                                      _getRequirementData();
+                                    },
+                                    titleID: widget.projectID,
+                                    languages: languages,
+                                    isEditing: true,
+                                    data: data,
+                                  ),
+                                ),
+                              );
+
+                            }
+                          },
+                          itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: "Delete",
+                              child: Text('Delete'),
+                            ),
+                            const PopupMenuItem<String>(
+                              value: "Edit",
+                              child: Text('Edit'),
+                            ),
+                          ],
+                        ),
+                      ),
                       Text(
-                        "Main Role Only",
+                        data.characterTitle ?? '',
                         style: TextStyle(
                             fontSize: 20.0, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        data.categories ?? '',
+                        style: TextStyle(
+                            fontSize: 10.0,color: Colors.grey),
                       ),
                       SizedBox(
                         height: 10.0,
                       ),
-                      Text(
-                          "It is a long established fact that a reader will be distracted b",
+                      Text('Short Desc : ' +
+                          data.shortDescription ?? '',
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis),
                       SizedBox(
                         height: 10.0,
                       ),
-                      Text("Categories : Lv4 -Lead characters,Lv1 - 1-2 day"),
+                      Text('Long Desc : ' + data.longDescription ?? '',maxLines: 3,overflow: TextOverflow.ellipsis),
                       SizedBox(
                         height: 10.0,
                       ),
-                      Text("Age From : 18"),
+                      Text("Age From : ${data.ageFrom ?? 0}"),
                       SizedBox(
                         height: 10.0,
                       ),
-                      Text("Age To : 30"),
+                      Text("Age To : ${data.ageTo ?? 0}"),
                       SizedBox(
                         height: 10.0,
                       ),
-                      Text("Minimum Budget : 5000"),
+                      Text("Minimum Budget : ${data.minimumBudget ?? 0}"),
                       SizedBox(
                         height: 10.0,
                       ),
-                      Text("Maximum Budget: 50000"),
+                      Text("Maximum Budget: ${data.maximumBudget ?? 0}"),
                       SizedBox(
                         height: 10.0,
                       ),
-                      Text("Gender : Male"),
+                      Text("Gender For: ${getGenderText(data.gender)}"),
                       SizedBox(
                         height: 10.0,
                       ),
-                      Text("Languages : English, Hindi"),
+                      Text("Languages : ${getLanguagesFrom(data.languages)}"),
                     ],
                   ),
                 ),
@@ -137,15 +218,68 @@ class DashboardPageState extends State<DashboardPage> {
     );
   }
 
+
+  void _getLanguages() async {
+    if (!isLoading) {
+      var accesstoken = await UserPreferencesService().getAccesstoken();
+      setState(() {
+        isLoading = true;
+      });
+      var url = kBaseUrl + "GetLanguages";
+      dio.options.headers["authorization"] = "barear " + accesstoken;
+      print(url);
+      print("barear " + accesstoken);
+      final response = await dio.post(url);
+      print(response);
+      var mGetProjectTitleRes =
+      GetLanguages.fromJson(response.data);
+
+      setState(() {
+        isLoading = false;
+      });
+
+      switch (mGetProjectTitleRes.status) {
+        case 1:
+          print('languages Obtained');
+
+          setState(() {
+            languages = mGetProjectTitleRes.data;
+          });
+
+          this._getRequirementData();
+          break;
+        case 0:
+          Fluttertoast.showToast(msg: mGetProjectTitleRes.message);
+          break;
+      }
+    }
+  }
+
+  String getGenderText(Gender gender){
+    switch(gender){
+      case Gender.MALE_FEMALE:
+        return 'Male & Female';
+      case Gender.FEMALE:
+        return 'Female';
+      case Gender.MALE:
+        return 'Male';
+    }
+    return '';
+  }
+
   void _getRequirementData() async {
     if (!isLoading) {
       var accesstoken = await UserPreferencesService().getAccesstoken();
       setState(() {
         isLoading = true;
       });
-      var url = kBaseUrl + "GetRequirement";
+      var url = kBaseUrl + "GetRequirementByTitle";
       dio.options.headers["authorization"] = "barear " + accesstoken;
-      final response = await dio.post(url);
+      print(url);
+      print("barear " + accesstoken);
+      final response = await dio.post(url,data: {
+        'ID': widget.projectID ?? 0
+      });
       print(response);
       var mGetProjectTitleRes =
           GetRequirementByTitleRes.fromJson(response.data);
@@ -163,6 +297,58 @@ class DashboardPageState extends State<DashboardPage> {
           break;
       }
     }
+  }
+
+  void _deleteRequirement(int selectedID) async {
+    if (!isLoading) {
+      var accesstoken = await UserPreferencesService().getAccesstoken();
+      setState(() {
+        isLoading = true;
+      });
+      var url = kBaseUrl + "DeleteRequirement";
+      dio.options.headers["authorization"] = "barear " + accesstoken;
+      print(url);
+      print("barear " + accesstoken);
+      final response = await dio.post(url,data: {
+        'ID': selectedID
+      });
+      print(response);
+      var mGetProjectTitleRes =
+      NormalRes.fromJson(response.data);
+
+      setState(() {
+        isLoading = false;
+      });
+
+      switch (mGetProjectTitleRes.status) {
+        case 1:
+          _getRequirementData();
+          break;
+        case 0:
+          Fluttertoast.showToast(msg: mGetProjectTitleRes.message);
+          break;
+      }
+    }
+  }
+
+
+  String getLanguagesFrom(String languages){
+
+    final langCode = languages.split(',').toList();
+
+    String languageComma = '';
+
+    final selectedLangs = this.languages.where((element) {
+      return langCode.contains('${element.id}');
+    });
+
+    languageComma = selectedLangs.map((e) {
+      return e.languageName;
+    }).join(',') ;
+
+
+    return languageComma;
+
   }
 
   Widget _buildProgressIndicator() {

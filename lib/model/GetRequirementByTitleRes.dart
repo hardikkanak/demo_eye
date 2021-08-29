@@ -21,12 +21,23 @@ class GetRequirementByTitleRes {
   String message;
   List<Datum> data;
 
-  factory GetRequirementByTitleRes.fromJson(Map<String, dynamic> json) =>
-      GetRequirementByTitleRes(
+  factory GetRequirementByTitleRes.fromJson(Map<String, dynamic> json) {
+
+    if(json["Status"] != 1){
+      return GetRequirementByTitleRes(
         status: json["Status"],
-        message: json["Message"],
-        data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+        message: json["Message"]
       );
+    }
+
+    return GetRequirementByTitleRes(
+      status: json["Status"],
+      message: json["Message"],
+      data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    );
+
+  }
+
 
   Map<String, dynamic> toJson() => {
         "Status": status,

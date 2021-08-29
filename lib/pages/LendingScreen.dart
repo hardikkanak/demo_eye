@@ -1,3 +1,4 @@
+import 'package:demo_omex_project/pages/add_requirement_page.dart';
 import 'package:demo_omex_project/pages/login_page.dart';
 import 'package:demo_omex_project/pages/project_page.dart';
 import 'package:demo_omex_project/services/userPreferencesService.dart';

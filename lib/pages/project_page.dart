@@ -18,6 +18,8 @@ class ProjectScreen extends StatefulWidget {
 
 class _ProjectScreenState extends State<ProjectScreen> {
   bool isLoading = false;
+  bool hasError = false;
+  String errorMsg = '';
   List<Datum> list = [];
   final dio = new Dio();
   TextEditingController _textFieldController = TextEditingController();
@@ -40,21 +42,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
         title: const Text("Project"),
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            list.length != 0
-                ? GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, childAspectRatio: 1.0),
-                    itemCount: list.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return _boxDesignNew(list[index]);
-                    },
-                  )
-                : Container(),
-            if (isLoading) _buildProgressIndicator(),
-          ],
-        ),
+        child: view(),
       ),
       floatingActionButton: FloatingActionButton(
         child: new Icon(Icons.add, color: Colors.white),
@@ -74,6 +62,33 @@ class _ProjectScreenState extends State<ProjectScreen> {
         },
       ),
     );
+  }
+
+  Widget view() {
+
+    if(hasError){
+      return Container(
+        child: Center(
+          child: Text(errorMsg),
+        ),
+      );
+    }
+
+    return Stack(
+        children: [
+          list.length != 0
+              ? GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, childAspectRatio: 1.0),
+                  itemCount: list.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _boxDesignNew(list[index]);
+                  },
+                )
+              : Container(),
+          if (isLoading) _buildProgressIndicator(),
+        ],
+      );
   }
 
   Widget _boxDesignNew(Datum user_item) {
@@ -169,29 +184,40 @@ class _ProjectScreenState extends State<ProjectScreen> {
   }
 
   void _getMoreDataNew() async {
-    if (!isLoading) {
-      var accesstoken = await UserPreferencesService().getAccesstoken();
-      setState(() {
-        isLoading = true;
-      });
-      var url = kBaseUrl + "GetProjectTitle";
-      dio.options.headers["authorization"] = "barear " + accesstoken;
-      final response = await dio.post(url);
-      print(response);
-      var mGetProjectTitleRes = GetProjectTitleRes.fromJson(response.data);
+    try {
+      if (!isLoading) {
+            var accesstoken = await UserPreferencesService().getAccesstoken() ?? '';
+            setState(() {
+              isLoading = true;
+            });
+            var url = kBaseUrl + "GetProjectTitle";
+            dio.options.headers["authorization"] = "barear " + accesstoken;
+            final response = await dio.post(url);
+            print(response);
+            var mGetProjectTitleRes = GetProjectTitleRes.fromJson(response.data);
 
-      setState(() {
-        isLoading = false;
-      });
+            setState(() {
+              isLoading = false;
+            });
 
-      switch (mGetProjectTitleRes.status) {
-        case 1:
-          setUi(mGetProjectTitleRes.data);
-          break;
-        case 0:
-          Fluttertoast.showToast(msg: mGetProjectTitleRes.message);
-          break;
-      }
+            switch (mGetProjectTitleRes.status) {
+              case 1:
+                setUi(mGetProjectTitleRes.data);
+                break;
+              case 0:
+                Fluttertoast.showToast(msg: mGetProjectTitleRes.message);
+                break;
+              case 2:
+                Fluttertoast.showToast(msg: mGetProjectTitleRes.message);
+                break;
+            }
+          }
+    } catch (e) {
+      setState(() {
+        hasError = true;
+        errorMsg = e.toString();
+      });
+      print(e);
     }
   }
 
