@@ -277,15 +277,17 @@ class _AddRequirementPageState extends State<AddRequirementPage> {
         Text(title),
         Container(
           width: size.width / 2,
-          height: 44,
-          child: TextField(
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            controller: controller,
-            decoration:
-                InputDecoration(border: OutlineInputBorder(), hintText: ''),
+          // height: 44,
+          child: Center(
+            child: TextField(
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
+              controller: controller,
+              decoration:
+                  InputDecoration(border: OutlineInputBorder(), hintText: ''),
+            ),
           ),
         )
       ],

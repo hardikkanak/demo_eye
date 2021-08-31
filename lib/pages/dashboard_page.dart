@@ -75,145 +75,148 @@ class DashboardPageState extends State<DashboardPage> {
 
   Widget _buildListItem() {
     return ListView.builder(
-      itemCount: isLoading
-          ? list.length + 1
-          : list.length, // Add one more item for progress indicator
+      itemCount: list.length, // Add one more item for progress indicator
       padding: EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (BuildContext context, int index) {
-        if (index == list.length) {
-          return _buildProgressIndicator();
-        } else {
+        final data = list[index];
 
-          final data = list[index];
-
-          return InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ViewItemScreen(languages: languages,data: data,),
-                ),
-              );
-            },
-            child: Card(
+        return InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ViewItemScreen(languages: languages,data: data,),
+              ),
+            );
+          },
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        alignment: Alignment.topRight,
-                        child: PopupMenuButton<String>(
-                          onSelected: (String result) {
-                            if (result == "Delete") {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text("Delete"),
-                                      content: Text("Are you sure you want to delete?"),
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text("No")),
-                                        TextButton(
-                                            onPressed: () {
-                                              _deleteRequirement(data.id ?? 0);
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text("Yes")),
-                                      ],
-                                    );
-                                  });
-                            } else if (result == "Edit") {
-                              print("Edit");
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddRequirementPage(
-                                    success: (){
-                                      _getRequirementData();
-                                    },
-                                    titleID: widget.projectID,
-                                    languages: languages,
-                                    isEditing: true,
-                                    data: data,
-                                  ),
-                                ),
-                              );
-
-                            }
-                          },
-                          itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<String>>[
-                            const PopupMenuItem<String>(
-                              value: "Delete",
-                              child: Text('Delete'),
-                            ),
-                            const PopupMenuItem<String>(
-                              value: "Edit",
-                              child: Text('Edit'),
-                            ),
-                          ],
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            data.characterTitle ?? '',
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 20.0, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      ),
-                      Text(
-                        data.characterTitle ?? '',
-                        style: TextStyle(
-                            fontSize: 20.0, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        data.categories ?? '',
-                        style: TextStyle(
-                            fontSize: 10.0,color: Colors.grey),
-                      ),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Text('Short Desc : ' +
-                          data.shortDescription ?? '',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Text('Long Desc : ' + data.longDescription ?? '',maxLines: 3,overflow: TextOverflow.ellipsis),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Text("Age From : ${data.ageFrom ?? 0}"),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Text("Age To : ${data.ageTo ?? 0}"),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Text("Minimum Budget : ${data.minimumBudget ?? 0}"),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Text("Maximum Budget: ${data.maximumBudget ?? 0}"),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Text("Gender For: ${getGenderText(data.gender)}"),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      Text("Languages : ${getLanguagesFrom(data.languages)}"),
-                    ],
-                  ),
+                        //Menu
+                        Container(
+                          alignment: Alignment.topRight,
+                          child: PopupMenuButton<String>(
+                            onSelected: (String result) {
+                              if (result == "Delete") {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text("Delete"),
+                                        content: Text("Are you sure you want to delete?"),
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text("No")),
+                                          TextButton(
+                                              onPressed: () {
+                                                _deleteRequirement(data.id ?? 0);
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text("Yes")),
+                                        ],
+                                      );
+                                    });
+                              } else if (result == "Edit") {
+                                print("Edit");
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddRequirementPage(
+                                      success: (){
+                                        _getRequirementData();
+                                      },
+                                      titleID: widget.projectID,
+                                      languages: languages,
+                                      isEditing: true,
+                                      data: data,
+                                    ),
+                                  ),
+                                );
+
+                              }
+                            },
+                            itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
+                              const PopupMenuItem<String>(
+                                value: "Delete",
+                                child: Text('Delete'),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: "Edit",
+                                child: Text('Edit'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      data.categories ?? '',
+                      maxLines: 1,
+                      style: TextStyle(
+                          fontSize: 10.0,color: Colors.grey),
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Text('Short Desc : ' +
+                        data.shortDescription ?? '',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Text('Long Desc : ' + data.longDescription ?? '',maxLines: 3,overflow: TextOverflow.ellipsis),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Text("Age From : ${data.ageFrom ?? 0}",maxLines: 1,overflow: TextOverflow.ellipsis),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Text("Age To : ${data.ageTo ?? 0}",maxLines: 1,overflow: TextOverflow.ellipsis),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Text("Minimum Budget : ${data.minimumBudget ?? 0}",maxLines: 1,overflow: TextOverflow.ellipsis),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Text("Maximum Budget: ${data.maximumBudget ?? 0}",maxLines: 1,overflow: TextOverflow.ellipsis),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Text("Gender For: ${getGenderText(data.gender)}",maxLines: 1,overflow: TextOverflow.ellipsis),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Text("Languages : ${getLanguagesFrom(data.languages)}",maxLines: 2,overflow: TextOverflow.ellipsis),
+                  ],
                 ),
               ),
             ),
-          );
-        }
+          ),
+        );
       },
     );
   }
