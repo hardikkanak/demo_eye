@@ -36,6 +36,15 @@ class AddRequirementPage extends StatefulWidget {
 class _AddRequirementPageState extends State<AddRequirementPage> {
   List<GetLanguageList> selectedLng = [];
 
+  List<String> allCategories = [
+    'Lv1 - 1-2 day ',
+    'Lv2 -Cameos/strong characters',
+    'Lv3 -Parallel lead/main cast',
+    'Lv4 -Lead characters'
+  ];
+
+  List<String> selectedCategories = [];
+
   Gender gender = Gender.MALE;
   bool isRequired = true;
   TextEditingController minBudget;
@@ -66,6 +75,10 @@ class _AddRequirementPageState extends State<AddRequirementPage> {
     categories = TextEditingController();
     shortDesc = TextEditingController();
     longDesc = TextEditingController();
+
+    if ( widget.data != null && widget.data.categories != null){
+      selectedCategories = widget.data.categories.split(',');
+    }
 
     setState(() {
       if (widget.isEditing) {
@@ -119,6 +132,7 @@ class _AddRequirementPageState extends State<AddRequirementPage> {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: categoriesTitle,
@@ -128,13 +142,18 @@ class _AddRequirementPageState extends State<AddRequirementPage> {
                   hintText: 'Enter Character Title'),
             ),
             SizedBox(height: 10),
-            TextField(
-              controller: categories,
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Categories',
-                  hintText: 'Enter Categories'),
-            ),
+            // TextField(
+            //   controller: categories,
+            //   decoration: InputDecoration(
+            //       border: OutlineInputBorder(),
+            //       labelText: 'Categories',
+            //       hintText: 'Enter Categories'),
+            // ),
+
+            Text('Select Categories:',textAlign: TextAlign.start,),
+            SizedBox(height: 5),
+            categorySelection(),
+
             SizedBox(height: 10),
             titleTextField(
                 size: _size, title: 'Minimum Budget:', controller: minBudget),
@@ -269,6 +288,24 @@ class _AddRequirementPageState extends State<AddRequirementPage> {
     );
   }
 
+  Column categorySelection() {
+    return Column(
+      children: [for (String category in allCategories) CheckboxListTile(title: Text(category),value: selectedCategories.contains(category), onChanged: (isSelected){
+        print(selectedCategories);
+        print(allCategories);
+        print(isSelected);
+        setState(() {
+          if(isSelected){
+            selectedCategories.add(category);
+
+          }else{
+            selectedCategories.remove(category);
+          }
+        });
+      })],
+    );
+  }
+
   Row titleTextField(
       {Size size, String title, TextEditingController controller}) {
     return Row(
@@ -328,7 +365,8 @@ class _AddRequirementPageState extends State<AddRequirementPage> {
       setState(() {
         isLoading = true;
       });
-      var url = kBaseUrl + "${widget.isEditing ? 'UpdateRequirement': 'AddRequirement'}";
+      var url = kBaseUrl +
+          "${widget.isEditing ? 'UpdateRequirement' : 'AddRequirement'}";
       dio.options.headers["authorization"] = "barear " + accesstoken;
       print(url);
       print("barear " + accesstoken);
@@ -350,7 +388,7 @@ class _AddRequirementPageState extends State<AddRequirementPage> {
           "LongDescription": longDesc.text,
           "IsOpen": isRequired,
           "RequirementTitleID": widget.titleID,
-          "Categories": categories.text,
+          "Categories": selectedCategories.join(','),
           "CharacterTitle": categoriesTitle.text,
         };
       } else {
@@ -365,11 +403,10 @@ class _AddRequirementPageState extends State<AddRequirementPage> {
           "LongDescription": longDesc.text,
           "IsOpen": isRequired,
           "RequirementTitleID": widget.titleID,
-          "Categories": categories.text,
+          "Categories": selectedCategories.join(','),
           "CharacterTitle": categoriesTitle.text,
         };
       }
-
       final response = await dio.post(url, data: data);
       print(response);
       var mGetProjectTitleRes = NormalRes.fromJson(response.data);

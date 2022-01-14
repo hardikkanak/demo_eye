@@ -26,4 +26,9 @@ class UserPreferencesService {
     String Accesstoken = prefs.getString("Accesstoken");
     return Accesstoken;
   }
+
+  static clear() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+  }
 }

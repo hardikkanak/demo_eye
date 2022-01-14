@@ -78,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () async {
                           if (userNameController.text.isEmpty) {
                             Fluttertoast.showToast(
-                                msg: "Please enter email address");
+                                msg: "Please enter user name");
                           } else if (passwordController.text.isEmpty) {
                             Fluttertoast.showToast(
                                 msg: "Please enter password");
@@ -103,23 +103,31 @@ class _LoginPageState extends State<LoginPage> {
         isLoading = true;
       });
 
-      var url = kBaseUrl + "Login";
-      final response = await dio
-          .post(url, data: {"UserName": userName, "Password": password});
+      try {
+        var url = kBaseUrl + "Login";
 
-      var loginRes = LoginRes.fromJson(response.data);
+        final response = await dio
+                  .post(url, data: {"UserName": userName, "Password": password});
 
-      setState(() {
-        isLoading = false;
-      });
+        var loginRes = LoginRes.fromJson(response.data);
 
-      switch (loginRes.status) {
-        case 1:
-          setUi(loginRes.data);
-          break;
-        case 0:
-          Fluttertoast.showToast(msg: loginRes.message);
-          break;
+        setState(() {
+                isLoading = false;
+              });
+
+        switch (loginRes.status) {
+                case 1:
+                  setUi(loginRes.data);
+                  break;
+                case 0:
+                  Fluttertoast.showToast(msg: loginRes.message);
+                  break;
+              }
+      } catch (e) {
+        print(e);
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }

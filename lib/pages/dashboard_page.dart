@@ -1,13 +1,17 @@
+import 'package:demo_omex_project/model/EmptyRes.dart';
 import 'package:demo_omex_project/model/GetLanguages.dart';
 import 'package:demo_omex_project/model/GetRequirementByTitleRes.dart';
 import 'package:demo_omex_project/model/NormalRes.dart';
+import 'package:demo_omex_project/model/ResCopyRequirement.dart';
 import 'package:demo_omex_project/pages/add_requirement_page.dart';
+import 'package:demo_omex_project/pages/applied_actors_page.dart';
 import 'package:demo_omex_project/pages/view_item.dart';
 import 'package:demo_omex_project/services/userPreferencesService.dart';
 import 'package:demo_omex_project/utils/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 
@@ -153,6 +157,12 @@ class DashboardPageState extends State<DashboardPage> {
                                   ),
                                 );
 
+                              }else if (result == "Copy"){
+                                _copyRequirement(data.id);
+                              }else if (result == "AppliedActors"){
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => AppliedActors(id: data.id,),));// //1
+                              }else if (result == "Change Status"){
+                                _copyUpdateRequirementStatus(data.id);
                               }
                             },
                             itemBuilder: (BuildContext context) =>
@@ -165,6 +175,17 @@ class DashboardPageState extends State<DashboardPage> {
                                 value: "Edit",
                                 child: Text('Edit'),
                               ),
+                              const PopupMenuItem<String>(
+                                value: "Copy",
+                                child: Text('Copy'),
+                              ),const PopupMenuItem<String>(
+                                value: "AppliedActors",
+                                child: Text('Actors'),
+                              ),const PopupMenuItem<String>(
+                              value: "Change Status",
+                              child: Text('Change Status'),
+                            ),
+
                             ],
                           ),
                         ),
@@ -211,6 +232,10 @@ class DashboardPageState extends State<DashboardPage> {
                       height: 10.0,
                     ),
                     Text("Languages : ${getLanguagesFrom(data.languages)}",maxLines: 2,overflow: TextOverflow.ellipsis),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Text("Status : ${data.isOpen ? 'Open':'Close'}",maxLines: 2,overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
@@ -283,6 +308,7 @@ class DashboardPageState extends State<DashboardPage> {
       final response = await dio.post(url,data: {
         'ID': widget.projectID ?? 0
       });
+      print(widget.projectID ?? 0);
       print(response);
       var mGetProjectTitleRes =
           GetRequirementByTitleRes.fromJson(response.data);
@@ -297,6 +323,66 @@ class DashboardPageState extends State<DashboardPage> {
           break;
         case 0:
           Fluttertoast.showToast(msg: mGetProjectTitleRes.message);
+          break;
+      }
+    }
+  }
+
+  void _copyRequirement(int id) async {
+    if (!isLoading) {
+      var accesstoken = await UserPreferencesService().getAccesstoken();
+      setState(() {
+        isLoading = true;
+      });
+      var url = kBaseUrl + "CopyRequirement";
+      dio.options.headers["authorization"] = "barear " + accesstoken;
+      print(url);
+      print("barear " + accesstoken);
+      final response = await dio.post(url, data: {'ID': id});
+      print(response);
+      var mGetProjectTitleRes =
+      ResCopyRequirement.fromJson(response.data);
+
+      setState(() {
+        isLoading = false;
+      });
+
+      switch (mGetProjectTitleRes.status) {
+        case 1:
+          Clipboard.setData(ClipboardData(text: mGetProjectTitleRes.data ?? ''));
+          break;
+        case 0:
+          Fluttertoast.showToast(msg: mGetProjectTitleRes.message);
+          break;
+      }
+    }
+  }
+
+  void _copyUpdateRequirementStatus(int id) async {
+    if (!isLoading) {
+      var accesstoken = await UserPreferencesService().getAccesstoken();
+      setState(() {
+        isLoading = true;
+      });
+      var url = kBaseUrl + "UpdateRequirementStatus";
+      dio.options.headers["authorization"] = "barear " + accesstoken;
+      print(url);
+      print("barear " + accesstoken);
+      final response = await dio.post(url, data: {'ID': id});
+      print(response);
+      var res =
+      EmptyRes.fromJson(response.data);
+
+      setState(() {
+        isLoading = false;
+      });
+
+      switch (res.status) {
+        case 1:
+          _getRequirementData();
+          break;
+        case 0:
+          Fluttertoast.showToast(msg: res.message);
           break;
       }
     }

@@ -1,5 +1,7 @@
+import 'package:demo_omex_project/main.dart';
 import 'package:demo_omex_project/model/AddProjectTitleRes.dart';
 import 'package:demo_omex_project/model/GetProjectTitleRes.dart';
+import 'package:demo_omex_project/pages/LendingScreen.dart';
 import 'package:demo_omex_project/pages/dashboard_page.dart';
 import 'package:demo_omex_project/services/userPreferencesService.dart';
 import 'package:demo_omex_project/utils/constants.dart';
@@ -40,6 +42,12 @@ class _ProjectScreenState extends State<ProjectScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Project"),
+        actions: [
+          IconButton(onPressed: () async {
+            await UserPreferencesService.clear();
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LendingScreen(),));
+          }, icon: Icon(Icons.logout))
+        ],
       ),
       body: SafeArea(
         child: view(),
