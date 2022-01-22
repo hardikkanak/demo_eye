@@ -45,7 +45,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Container(
                     width: 200,
                     height: 150,
-                    child: Image.asset("asset/images/flutter-logo.png"),
+                    child: Image.asset("asset/images/applogo.png"),
                   ),
                 ),
               ),
@@ -107,22 +107,22 @@ class _LoginPageState extends State<LoginPage> {
         var url = kBaseUrl + "Login";
 
         final response = await dio
-                  .post(url, data: {"UserName": userName, "Password": password});
+            .post(url, data: {"UserName": userName, "Password": password});
 
         var loginRes = LoginRes.fromJson(response.data);
 
         setState(() {
-                isLoading = false;
-              });
+          isLoading = false;
+        });
 
         switch (loginRes.status) {
-                case 1:
-                  setUi(loginRes.data);
-                  break;
-                case 0:
-                  Fluttertoast.showToast(msg: loginRes.message);
-                  break;
-              }
+          case 1:
+            setUi(loginRes.data);
+            break;
+          case 0:
+            Fluttertoast.showToast(msg: loginRes.message);
+            break;
+        }
       } catch (e) {
         print(e);
         setState(() {

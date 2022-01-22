@@ -3,7 +3,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="demo_omex_project"
+        android:label="Third eye casting hub"
         android:icon="@mipmap/ic_launcher"
        android:usesCleartextTraffic="true">
         <activity

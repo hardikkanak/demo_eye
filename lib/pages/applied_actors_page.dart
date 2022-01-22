@@ -42,10 +42,10 @@ class _AppliedActorsState extends State<AppliedActors> {
   }
 
   launchURL(String url) async {
-    if(Platform.isAndroid){
-      await launch(url,forceWebView: false);
-    }else{
-      await launch(url,forceSafariVC: false);
+    if (Platform.isAndroid) {
+      await launch(url, forceWebView: false);
+    } else {
+      await launch(url, forceSafariVC: false);
     }
   }
 
@@ -124,9 +124,11 @@ class _AppliedActorsState extends State<AppliedActors> {
                         )
                       ],
                     )),
-                OutlinedButton(onPressed: (){
-                  _selectAppliedActor();
-                }, child: Text('Save'))
+                OutlinedButton(
+                    onPressed: () {
+                      _selectAppliedActor();
+                    },
+                    child: Text('Save'))
               ],
             ),
           ),
@@ -134,46 +136,65 @@ class _AppliedActorsState extends State<AppliedActors> {
         Container(
           child: Wrap(
             children: [
-              OutlinedButton(onPressed: (){
-                if(selectedIds.isEmpty){
-                  Fluttertoast.showToast(msg: 'Please Select Actor');
-                  return;
-                }
-                CustomPopupField(context, title: 'Add Budget', message: '', primaryBtnTxt: 'Save',hint: 'Enter Budget',isOnlyNumbers: true,secondaryBtnTxt: 'Cancel',primaryAction: (text){
-                  _updateBudget(text);
-                });
-              }, child: Text('Add Budget')),
+              OutlinedButton(
+                  onPressed: () {
+                    if (selectedIds.isEmpty) {
+                      Fluttertoast.showToast(msg: 'Please Select Actor');
+                      return;
+                    }
+                    CustomPopupField(context,
+                        title: 'Add Budget',
+                        message: '',
+                        primaryBtnTxt: 'Save',
+                        hint: 'Enter Budget',
+                        isOnlyNumbers: true,
+                        secondaryBtnTxt: 'Cancel', primaryAction: (text) {
+                      _updateBudget(text);
+                    });
+                  },
+                  child: Text('Add Budget')),
               SizedBox(width: 10),
-              OutlinedButton(onPressed: (){
-                if(selectedIds.isEmpty){
-                  Fluttertoast.showToast(msg: 'Please Select Actor');
-                  return;
-                }
-                CustomPopupList(context, title: 'Add TagMark', message: '', primaryBtnTxt: 'Add',texts: tagMarks.map((e) => e.tagMarkName).toList(),secondaryBtnTxt: 'Cancel',primaryAction: (list,text){
-
-                  if(list.length == 0){
-                    _addTagMarks([text]);
-                  }else{
-                    _addTagMarks(list);
-                  }
-
-                });
-              }, child: Text('Add TagMark')),
+              OutlinedButton(
+                  onPressed: () {
+                    if (selectedIds.isEmpty) {
+                      Fluttertoast.showToast(msg: 'Please Select Actor');
+                      return;
+                    }
+                    CustomPopupList(context,
+                        title: 'Add TagMark',
+                        message: '',
+                        primaryBtnTxt: 'Add',
+                        texts: tagMarks.map((e) => e.tagMarkName).toList(),
+                        secondaryBtnTxt: 'Cancel', primaryAction: (list, text) {
+                      if (list.length == 0) {
+                        _addTagMarks([text]);
+                      } else {
+                        _addTagMarks(list);
+                      }
+                    });
+                  },
+                  child: Text('Add TagMark')),
               SizedBox(width: 10),
-              OutlinedButton(onPressed: (){
-                if(selectedIds.isEmpty){
-                  Fluttertoast.showToast(msg: 'Please Select Actor');
-                  return;
-                }
-                CustomPopupList(context, title: 'Remove TagMark', message: '', primaryBtnTxt: 'Remove',texts: tagMarks.map((e) => e.tagMarkName).toList(),secondaryBtnTxt: 'Cancel',primaryAction: (list,text){
-                  if(list.length == 0){
-                    _removeTagMarks([text]);
-                  }else{
-                    _removeTagMarks(list);
-                  }
-
-                });
-              }, child: Text('Remove TagMark')),
+              OutlinedButton(
+                  onPressed: () {
+                    if (selectedIds.isEmpty) {
+                      Fluttertoast.showToast(msg: 'Please Select Actor');
+                      return;
+                    }
+                    CustomPopupList(context,
+                        title: 'Remove TagMark',
+                        message: '',
+                        primaryBtnTxt: 'Remove',
+                        texts: tagMarks.map((e) => e.tagMarkName).toList(),
+                        secondaryBtnTxt: 'Cancel', primaryAction: (list, text) {
+                      if (list.length == 0) {
+                        _removeTagMarks([text]);
+                      } else {
+                        _removeTagMarks(list);
+                      }
+                    });
+                  },
+                  child: Text('Remove TagMark')),
             ],
           ),
         ),
@@ -194,7 +215,6 @@ class _AppliedActorsState extends State<AppliedActors> {
                       children: [
                         Row(
                           children: [
-
                             Expanded(
                               child: Text(
                                 data.name ?? '',
@@ -262,18 +282,43 @@ class _AppliedActorsState extends State<AppliedActors> {
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.w600),
                             ),
-                            InkWell(onTap:  (){
-                              launchURL('https://wa.me/${Uri.encodeComponent(data.mobileNumber ?? '')}');
-                            }, child: SizedBox(width: 44,child: Center(child: SizedBox(
-                              height: 20,
-                                width: 20,
-                                child: Image.asset('asset/images/whatsapp-icon.png'))))),
-                            InkWell(onTap:  (){
-                              launchURL('tel:${Uri.encodeComponent(data.mobileNumber ?? '')}');
-                            }, child: SizedBox(width: 44,child: Icon(Icons.call,color: Colors.red,))),
-                            IconButton(onPressed:  (){
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => AuditionPage(actorId: data.actorsId,actorName: data.name,),fullscreenDialog: true));
-                            }, icon: Icon(Icons.info_outline,color: Colors.red,)),
+                            InkWell(
+                                onTap: () {
+                                  launchURL(
+                                      'https://wa.me/${Uri.encodeComponent(data.mobileNumber ?? '')}');
+                                },
+                                child: SizedBox(
+                                    width: 44,
+                                    child: Center(
+                                        child: SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: Image.asset(
+                                                'asset/images/whatsapp-icon.png'))))),
+                            InkWell(
+                                onTap: () {
+                                  launchURL(
+                                      'tel:${Uri.encodeComponent(data.mobileNumber ?? '')}');
+                                },
+                                child: SizedBox(
+                                    width: 44,
+                                    child: Icon(
+                                      Icons.call,
+                                      color: Colors.red,
+                                    ))),
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => AuditionPage(
+                                            actorId: data.actorsId,
+                                            actorName: data.name,
+                                          ),
+                                      fullscreenDialog: true));
+                                },
+                                icon: Icon(
+                                  Icons.info_outline,
+                                  color: Colors.red,
+                                )),
                           ],
                         ),
                         SizedBox(height: 10),
@@ -289,8 +334,7 @@ class _AppliedActorsState extends State<AppliedActors> {
                             Text(
                               '${data.minimumBudget ?? ''}',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15),
+                                  fontWeight: FontWeight.bold, fontSize: 15),
                             ),
                           ],
                         ),
@@ -303,8 +347,7 @@ class _AppliedActorsState extends State<AppliedActors> {
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.w600),
                             ),
-                            Expanded(
-                                child: Text('${data.tagMark ?? ''}')),
+                            Expanded(child: Text('${data.tagMark ?? ''}')),
                           ],
                         ),
                         SizedBox(height: 10),
@@ -315,23 +358,48 @@ class _AppliedActorsState extends State<AppliedActors> {
                         //   givenRatings: data.starRating ?? 0,
                         // ),
                         InkWell(
-                          onTap: (){
-                            CustomPopupForStarRating(context,title: 'Add Ratings',primaryAction: (stars){
-                              _updateStarRating(ratings: stars,id: data.actorsId ?? '');
-                            },primaryBtnTxt: 'Save',starRating: data.starRating ?? 0,secondaryBtnTxt: 'Cancel');
+                          onTap: () {
+                            CustomPopupForStarRating(context,
+                                title: 'Add Ratings', primaryAction: (stars) {
+                              _updateStarRating(
+                                  ratings: stars, id: data.actorsId ?? '');
+                            },
+                                primaryBtnTxt: 'Save',
+                                starRating: data.starRating ?? 0,
+                                secondaryBtnTxt: 'Cancel');
                           },
                           child: Row(
                             children: [
-                              Icon(data.starRating >= 1 ? Icons.star : Icons.star_border,
-                                  color: Colors.orangeAccent, size: 35),
-                              Icon(data.starRating >= 2 ? Icons.star : Icons.star_border,
-                                  color: Colors.orangeAccent, size: 35),
-                              Icon(data.starRating >= 3 ? Icons.star : Icons.star_border,
-                                  color: Colors.orangeAccent, size: 35),
-                              Icon(data.starRating >= 4 ? Icons.star : Icons.star_border,
-                                  color: Colors.orangeAccent, size: 35),
-                              Icon(data.starRating >= 5 ? Icons.star : Icons.star_border,
-                                  color: Colors.orangeAccent, size: 35),
+                              Icon(
+                                  data.starRating >= 1
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.orangeAccent,
+                                  size: 35),
+                              Icon(
+                                  data.starRating >= 2
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.orangeAccent,
+                                  size: 35),
+                              Icon(
+                                  data.starRating >= 3
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.orangeAccent,
+                                  size: 35),
+                              Icon(
+                                  data.starRating >= 4
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.orangeAccent,
+                                  size: 35),
+                              Icon(
+                                  data.starRating >= 5
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: Colors.orangeAccent,
+                                  size: 35),
                             ],
                           ),
                         )
@@ -359,6 +427,7 @@ class _AppliedActorsState extends State<AppliedActors> {
       dio.options.headers["authorization"] = "barear " + accesstoken;
       print(url);
       print("barear " + accesstoken);
+      print(widget.id);
       final response = await dio.post(url, data: {'ID': widget.id});
       print(response);
       //TODO:- Set Response to ResModel
@@ -390,7 +459,7 @@ class _AppliedActorsState extends State<AppliedActors> {
   }
 
   void _selectAppliedActor() async {
-    if(selectedIds.isEmpty){
+    if (selectedIds.isEmpty) {
       Fluttertoast.showToast(msg: 'Please Select Actor');
       return;
     }
@@ -407,13 +476,13 @@ class _AppliedActorsState extends State<AppliedActors> {
 
       print({
         'ID': widget.id,
-        'ActorsID' : selectedIds.join(','),
+        'ActorsID': selectedIds.join(','),
         "Mode": isAppliedActors ? "Applied" : "Selected"
       });
 
       final response = await dio.post(url, data: {
         'ID': widget.id,
-        'ActorsID' : selectedIds.join(','),
+        'ActorsID': selectedIds.join(','),
         "Mode": isAppliedActors ? "Applied" : "Selected"
       });
       print(response);
@@ -440,7 +509,7 @@ class _AppliedActorsState extends State<AppliedActors> {
     }
   }
 
-  void _updateStarRating({int ratings,String id}) async {
+  void _updateStarRating({int ratings, String id}) async {
     if (!isLoading) {
       var accesstoken = await UserPreferencesService().getAccesstoken();
       setState(() {
@@ -450,14 +519,9 @@ class _AppliedActorsState extends State<AppliedActors> {
       dio.options.headers["authorization"] = "barear " + accesstoken;
       print(url);
       print("barear " + accesstoken);
-      print({
-        'ActorsId' : id,
-        'Rating' : ratings
-      });
-      final response = await dio.post(url, data: {
-        'ActorsId' : id,
-        'Rating' : ratings
-      });
+      print({'ActorsId': id, 'Rating': ratings});
+      final response =
+          await dio.post(url, data: {'ActorsId': id, 'Rating': ratings});
       print(response);
       //TODO:- Set Response to ResModel
 
@@ -469,7 +533,7 @@ class _AppliedActorsState extends State<AppliedActors> {
 
       switch (res.status) {
         case 1:
-        //TODO:- Setup UI
+          //TODO:- Setup UI
           setState(() {
             selectedIds = [];
           });
@@ -483,7 +547,7 @@ class _AppliedActorsState extends State<AppliedActors> {
   }
 
   void _updateBudget(String amount) async {
-    if(selectedIds.isEmpty){
+    if (selectedIds.isEmpty) {
       Fluttertoast.showToast(msg: 'Please Select Actor');
       return;
     }
@@ -497,10 +561,8 @@ class _AppliedActorsState extends State<AppliedActors> {
       print(url);
       print("barear " + accesstoken);
       print(selectedIds.join(','));
-      final response = await dio.post(url, data: {
-        'Budget': amount,
-        'ActorsID' : selectedIds.join(',')
-      });
+      final response = await dio.post(url,
+          data: {'Budget': amount, 'ActorsID': selectedIds.join(',')});
       print(response);
       //TODO:- Set Response to ResModel
 
@@ -512,7 +574,7 @@ class _AppliedActorsState extends State<AppliedActors> {
 
       switch (res.status) {
         case 1:
-        //TODO:- Setup UI
+          //TODO:- Setup UI
           setState(() {
             selectedIds = [];
           });
@@ -536,8 +598,7 @@ class _AppliedActorsState extends State<AppliedActors> {
       print(url);
       print("barear " + accesstoken);
       print(selectedIds.join(','));
-      final response = await dio.post(url, data: {
-      });
+      final response = await dio.post(url, data: {});
       print(response);
       //TODO:- Set Response to ResModel
 
@@ -549,7 +610,7 @@ class _AppliedActorsState extends State<AppliedActors> {
 
       switch (res.status) {
         case 1:
-        //TODO:- Setup UI
+          //TODO:- Setup UI
           setState(() {
             tagMarks = res.data;
           });
@@ -573,11 +634,11 @@ class _AppliedActorsState extends State<AppliedActors> {
       print("barear " + accesstoken);
       print({
         'TagMarkName': tagMarks.join(','),
-        'ActorId' : selectedIds.join(',')
+        'ActorId': selectedIds.join(',')
       });
       final response = await dio.post(url, data: {
         'TagMarkName': tagMarks.join(','),
-        'ActorId' : selectedIds.join(',')
+        'ActorId': selectedIds.join(',')
       });
       print(response);
       //TODO:- Set Response to ResModel
@@ -590,7 +651,7 @@ class _AppliedActorsState extends State<AppliedActors> {
 
       switch (res.status) {
         case 1:
-        //TODO:- Setup UI
+          //TODO:- Setup UI
           _getAppliedActors();
           break;
         case 0:
@@ -613,7 +674,7 @@ class _AppliedActorsState extends State<AppliedActors> {
       print(selectedIds.join(','));
       final response = await dio.post(url, data: {
         'TagMarkName': tagMarks.join(','),
-        'ActorId' : selectedIds.join(',')
+        'ActorId': selectedIds.join(',')
       });
       print(response);
       //TODO:- Set Response to ResModel
@@ -626,7 +687,7 @@ class _AppliedActorsState extends State<AppliedActors> {
 
       switch (res.status) {
         case 1:
-        //TODO:- Setup UI
+          //TODO:- Setup UI
           _getAppliedActors();
           break;
         case 0:
